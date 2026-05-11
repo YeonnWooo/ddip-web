@@ -48,7 +48,10 @@ public class RecommendationService {
                             Comparator.nullsLast(Comparator.naturalOrder())
                     ).reversed())
                     .limit(TOP_N)
-                    .map(p -> RecommendationResponseDto.of(p, 0.0, null))
+                    .map(p -> RecommendationResponseDto.of(
+                            p, 0.0, null,
+                            pledgeRepository.countBackersByProjectId(p.getId())
+                    ))
                     .toList();
         }
 
@@ -90,9 +93,14 @@ public class RecommendationService {
             openProjects = allOpenProjects;
         }
 
-        // 3) 프로젝트별 기준값 수집
-        List<ProjectCriteriaDto> criteriaList = openProjects.stream()
-                .map(p -> ProjectCriteriaDto.of(p, pledgeRepository.countBackersByProjectId(p.getId())))
+        // 3) 프로젝트별 기준값 수집 (backerCount 재사용을 위해 함께 보관)
+        record ProjectWithBacker(Project project, long backerCount) {}
+        List<ProjectWithBacker> projectWithBackers = openProjects.stream()
+                .map(p -> new ProjectWithBacker(p, pledgeRepository.countBackersByProjectId(p.getId())))
+                .toList();
+
+        List<ProjectCriteriaDto> criteriaList = projectWithBackers.stream()
+                .map(pb -> ProjectCriteriaDto.of(pb.project(), pb.backerCount()))
                 .toList();
 
         // 4) TOPSIS 계산
@@ -106,7 +114,10 @@ public class RecommendationService {
 
         return ranked.stream()
                 .limit(TOP_N)
-                .map(r -> RecommendationResponseDto.of(openProjects.get(r.i()), r.score(), userType))
+                .map(r -> {
+                    ProjectWithBacker pb = projectWithBackers.get(r.i());
+                    return RecommendationResponseDto.of(pb.project(), r.score(), userType, pb.backerCount());
+                })
                 .toList();
     }
 

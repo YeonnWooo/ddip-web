@@ -5,6 +5,8 @@ import com.ddip.backend.user.dto.enums.UserType;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
+
 @Getter
 @Builder
 public class RecommendationResponseDto {
@@ -16,10 +18,12 @@ public class RecommendationResponseDto {
     private String categoryPath;
     private Long targetAmount;
     private Long currentAmount;
-    private double score; // TOPSIS 근접도 점수
+    private long backerCount;   // 후원자 수 (프론트 카드 표시용)
+    private LocalDate endAt;    // 마감일 (프론트 daysLeft 계산용)
+    private double score;       // TOPSIS 근접도 점수
     private UserType userType;
 
-    public static RecommendationResponseDto of(Project project, double score, UserType userType) {
+    public static RecommendationResponseDto of(Project project, double score, UserType userType, long backerCount) {
         return RecommendationResponseDto.builder()
                 .projectId(project.getId())
                 .title(project.getTitle())
@@ -28,6 +32,8 @@ public class RecommendationResponseDto {
                 .categoryPath(project.getCategoryPath())
                 .targetAmount(project.getTargetAmount())
                 .currentAmount(project.getCurrentAmount())
+                .backerCount(backerCount)
+                .endAt(project.getEndAt())
                 .score(score)
                 .userType(userType)
                 .build();
