@@ -72,8 +72,11 @@ public class AhpWeightConfig {
                     ProjectCategory.TECH,
                     ProjectCategory.HEALTH,
                     ProjectCategory.FOOD,
-                    ProjectCategory.FASHION
+                    ProjectCategory.FASHION,
+                    ProjectCategory.GAME   // 게임/취미 → 실용적 소비 성향에 포함
             )
+            // TREND_ORIENTED → PREFERRED_CATEGORIES에 없음 → null 반환 → 전체 카테고리 대상
+            // ETC는 분류 불명확하므로 TREND_ORIENTED(전체)에서만 노출
     );
 
     public static double[] getWeights(UserType userType) {

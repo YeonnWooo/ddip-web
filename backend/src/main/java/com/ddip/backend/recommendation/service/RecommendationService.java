@@ -61,17 +61,24 @@ public class RecommendationService {
 
         // 2) 성향별 카테고리 필터링
         //    - VALUE_ORIENTED    : ENVIRONMENT, SOCIAL, EDUCATION, CULTURE
-        //    - PRACTICAL_ORIENTED: TECH, HEALTH, FOOD, FASHION
+        //    - PRACTICAL_ORIENTED: TECH, HEALTH, FOOD, FASHION, GAME
         //    - TREND_ORIENTED    : 카테고리 무관 (전체 대상, 트렌드 지표로만 정렬)
         List<ProjectCategory> preferred = AhpWeightConfig.getPreferredCategories(userType);
         List<Project> openProjects;
         if (preferred != null && !preferred.isEmpty()) {
-            Set<String> preferredNames = preferred.stream()
-                    .map(Enum::name)
-                    .collect(Collectors.toSet());
+            Set<ProjectCategory> preferredSet = Set.copyOf(preferred);
             openProjects = allOpenProjects.stream()
-                    .filter(p -> p.getCategoryPath() != null
-                            && preferredNames.contains(p.getCategoryPath().toUpperCase()))
+                    .filter(p -> {
+                        if (p.getCategoryPath() == null) return false;
+                        try {
+                            ProjectCategory cat = ProjectCategory.valueOf(p.getCategoryPath().toUpperCase());
+                            return preferredSet.contains(cat);
+                        } catch (IllegalArgumentException e) {
+                            // 알 수 없는 카테고리값이 DB에 있으면 제외
+                            log.warn("알 수 없는 categoryPath 값: projectId={}, categoryPath={}", p.getId(), p.getCategoryPath());
+                            return false;
+                        }
+                    })
                     .toList();
             // 선호 카테고리 프로젝트가 없으면 빈 리스트 반환 (전체 혼합 방지)
             if (openProjects.isEmpty()) return List.of();

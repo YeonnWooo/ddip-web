@@ -37,7 +37,12 @@ public class ProjectCriteriaDto {
     }
 
     public static ProjectCriteriaDto of(Project project, long backerCount) {
-        long daysLeft = Math.max(LocalDate.now().until(project.getEndAt()).getDays(), 1);
+        // endAt이 null이거나 이미 지난 경우 방어 처리 (urgency = 최솟값)
+        long daysLeft = 1L;
+        if (project.getEndAt() != null) {
+            long remaining = LocalDate.now().until(project.getEndAt()).getDays();
+            daysLeft = Math.max(remaining, 1);
+        }
         double achievement = project.getTargetAmount() == 0 ? 0
                 : (double) project.getCurrentAmount() / project.getTargetAmount();
         long minPrice = project.getRewardTiers().stream()
