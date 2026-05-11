@@ -38,12 +38,15 @@ public class RecommendationService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-        // 설문 미완료 시 최신순 반환
+        // 설문 미완료 시 최신순 반환 (createTime null 방어 — nullsLast)
         if (user.getUserType() == null) {
             log.info("설문 미완료 유저 — 최신순 반환: userId={}", userId);
             return projectRepository.findAll().stream()
                     .filter(p -> p.getStatus() == ProjectStatus.OPEN)
-                    .sorted(Comparator.comparing(Project::getCreateTime).reversed())
+                    .sorted(Comparator.comparing(
+                            Project::getCreateTime,
+                            Comparator.nullsLast(Comparator.naturalOrder())
+                    ).reversed())
                     .limit(TOP_N)
                     .map(p -> RecommendationResponseDto.of(p, 0.0, null))
                     .toList();
