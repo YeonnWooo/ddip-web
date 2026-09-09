@@ -131,6 +131,14 @@ public class Project extends BaseTimeEntity {
         this.currentAmount = Math.max(nextAmount, 0L);
     }
 
+    public void increaseLikeCount() {
+        this.likeCount += 1;
+    }
+
+    public void decreaseLikeCount() {
+        this.likeCount = Math.max(this.likeCount - 1, 0L);
+    }
+
     public void cancel() {
         if (this.status == ProjectStatus.OPEN || this.status == ProjectStatus.DRAFT) {
             this.status = ProjectStatus.CANCELED;

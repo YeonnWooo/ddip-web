@@ -1,15 +1,19 @@
 package com.ddip.backend.project.service;
 
-import com.ddip.backend.project.es.document.ProjectDocument;
-import com.ddip.backend.project.es.repository.ProjectElasticsearchRepository;
+import com.ddip.backend.common.es.document.ProjectDocument;
+import com.ddip.backend.common.es.repository.ProjectElasticsearchRepository;
 import com.ddip.backend.pledge.service.PledgeService;
 import com.ddip.backend.project.domain.Project;
 import com.ddip.backend.project.domain.ProjectImage;
+import com.ddip.backend.project.domain.ProjectLike;
 import com.ddip.backend.project.dto.enums.ProjectStatus;
+import com.ddip.backend.project.dto.project.LikeResponseDto;
 import com.ddip.backend.project.dto.project.ProjectRequestDto;
 import com.ddip.backend.project.dto.project.ProjectUpdateRequestDto;
 import com.ddip.backend.project.event.ProjectEsEvent;
+import com.ddip.backend.project.exception.project.ProjectNotFoundException;
 import com.ddip.backend.project.exception.reward.RewardTierRequiredException;
+import com.ddip.backend.project.repository.ProjectLikeRepository;
 import com.ddip.backend.project.repository.ProjectRepository;
 import com.ddip.backend.user.repository.UserRepository;
 import com.ddip.backend.user.validation.user.UserNotFoundException;
@@ -33,6 +37,7 @@ public class ProjectService {
     private final ApplicationEventPublisher publisher;
     private final ProjectElasticsearchRepository projectElasticsearchRepository;
     private final ProjectRepository projectRepository;
+    private final ProjectLikeRepository projectLikeRepository;
     private final UserRepository userRepository;
     private final ProjectImageService projectImageService;
     private final ProjectQueryService projectQueryService;
@@ -78,6 +83,32 @@ public class ProjectService {
         log.info("프로젝트 삭제 완료 projectId={}", projectId);
     }
 
+
+    public LikeResponseDto toggleLike(Long projectId, Long userId) {
+        Project project = projectRepository.findByIdForUpdate(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        boolean alreadyLiked = projectLikeRepository.existsByProjectIdAndUserId(projectId, userId);
+        if (alreadyLiked) {
+            projectLikeRepository.deleteByProjectIdAndUserId(projectId, userId);
+            project.decreaseLikeCount();
+            return new LikeResponseDto(false, project.getLikeCount());
+        }
+
+        projectLikeRepository.save(ProjectLike.builder()
+                .projectId(projectId)
+                .userId(userId)
+                .build());
+        project.increaseLikeCount();
+        return new LikeResponseDto(true, project.getLikeCount());
+    }
+
+    public LikeResponseDto getLikeStatus(Long projectId, Long userId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+        boolean liked = projectLikeRepository.existsByProjectIdAndUserId(projectId, userId);
+        return new LikeResponseDto(liked, project.getLikeCount());
+    }
 
     private void validateRewardTiers(ProjectRequestDto requestDto) {
         if (requestDto.getRewardTiers() == null || requestDto.getRewardTiers().isEmpty()) {
