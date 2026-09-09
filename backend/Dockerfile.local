@@ -1,0 +1,17 @@
+# =====================================================
+# 로컬 전용 Dockerfile — Gradle 빌드를 Docker 밖에서 직접 수행
+#
+# 사용 순서:
+#   1. ./gradlew bootJar
+#   2. docker build -f Dockerfile.local -t ddip-backend:local .
+# =====================================================
+
+FROM amazoncorretto:21
+WORKDIR /app
+
+# 사전 빌드된 JAR만 복사 (build/libs/*.jar)
+COPY build/libs/*.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

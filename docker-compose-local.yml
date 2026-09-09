@@ -1,0 +1,140 @@
+# =====================================================
+# 로컬 Docker 실행 가이드 (직접 빌드 방식)
+#
+# [1단계] 백엔드 이미지 빌드
+#   cd backend
+#   ./gradlew bootJar
+#   docker build -f Dockerfile.local -t ddip-backend:local .
+#
+# [2단계] 프론트엔드 이미지 빌드  (ddip-web 레포 기준)
+#   cd /Users/kanghanseo/IdeaProjects/ddip-web/front
+#   docker build \
+#     --build-arg NEXT_PUBLIC_API_BASE_URL=http://localhost:8080 \
+#     -t ddip-frontend:local .
+#
+# [3단계] 전체 스택 실행
+#   docker-compose -f docker-compose-local.yml up -d
+#
+# [중지]
+#   docker-compose -f docker-compose-local.yml down
+#
+# [로그 확인]
+#   docker-compose -f docker-compose-local.yml logs -f backend
+#   docker-compose -f docker-compose-local.yml logs -f frontend
+# =====================================================
+
+services:
+
+  # ── MySQL ──────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: ddip-mysql-local
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ddip
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-local-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    networks:
+      - ddip-local
+
+  # ── Redis ──────────────────────────────────────────
+  redis:
+    image: redis:7.2
+    container_name: ddip-redis-local
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-local-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - ddip-local
+
+  # ── Elasticsearch ──────────────────────────────────
+  elasticsearch:
+    platform: linux/amd64
+    image: seohan02/ddip-elasticsearch:latest
+    container_name: ddip-es-local
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - cluster.name=ddip-es
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - es-local-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200 >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - ddip-local
+
+  # ── Backend (Spring Boot) ──────────────────────────
+  # 빌드:
+  #   cd backend && ./gradlew bootJar
+  #   docker build -f Dockerfile.local -t ddip-backend:local .
+  backend:
+    image: ddip-backend:local
+    pull_policy: never
+    container_name: ddip-backend-local
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env.local
+    networks:
+      - ddip-local
+    restart: on-failure
+
+  # ── Frontend (Next.js) ─────────────────────────────
+  # 빌드 (ddip-web 레포):
+  #   cd /Users/kanghanseo/IdeaProjects/ddip-web/front
+  #   docker build \
+  #     --build-arg NEXT_PUBLIC_API_BASE_URL=http://localhost:8080 \
+  #     -t ddip-frontend:local .
+  frontend:
+    image: ddip-frontend:local
+    pull_policy: never
+    container_name: ddip-frontend-local
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
+    networks:
+      - ddip-local
+    restart: on-failure
+
+volumes:
+  mysql-local-data:
+  redis-local-data:
+  es-local-data:
+
+networks:
+  ddip-local:
+    driver: bridge

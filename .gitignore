@@ -38,3 +38,5 @@ out/
 
 /backend/.env
 /.env
+/.env.local
+/backend/.env.local
