@@ -21,7 +21,6 @@
 | 경매(Auction) 도메인 | 입찰, 낙찰, 상태 전이(`RUNNING`/`ENDED`/`CANCELED`) 전체 로직 설계 및 구현 |
 | 동시성 제어 | AOP 기반 커스텀 `@DistributedLock`으로 Redisson 분산락 구현, 동시 입찰 시 레이스 컨디션 방지 |
 | 검색 | Elasticsearch에 Nori 형태소 분석기 + n-gram analyzer 적용, 한글 키워드/부분 검색 구현 |
-| 실시간 알림 | 입찰 이벤트 발행 후 WebSocket(STOMP)으로 최신 입찰가 브로드캐스트 |
 | 배포 | Jenkins CI/CD 파이프라인 구축, GitHub push부터 서버 배포까지 자동화 |
 
 ## 경매 입찰 흐름
@@ -55,20 +54,6 @@ sequenceDiagram
     end
 ```
 
-**패키지 구조** (`backend/src/main/java/com/ddip/backend`)
-
-| 패키지 | 역할 |
-|---|---|
-| `auction` | 경매 도메인 — 입찰/낙찰/상태 전이 |
-| `project` | 크라우드펀딩(공동구매) 도메인 |
-| `pledge` | 공동구매 참여(펀딩) |
-| `billing` | 포인트/결제 |
-| `user` | 회원/인증 |
-| `notification` | 알림 |
-| `recommendation` | 추천 |
-| `admin` | 관리자 기능 |
-| `common` | 공통 설정, AOP, 이벤트 핸들러 |
-
 ## 기술 스택
 
 | 구분 | 기술 |
@@ -89,7 +74,7 @@ sequenceDiagram
 
 ![CI/CD Pipeline](docs/images/ci-cd-pipeline.jpeg)
 
-GitHub push → Jenkins 빌드 → Docker Hub push → Production 서버 배포까지 자동화되어 있습니다.
+GitHub push → Jenkins 빌드 → Docker Hub push → Production 서버 배포.
 
 | Stage | 내용 |
 |---|---|
