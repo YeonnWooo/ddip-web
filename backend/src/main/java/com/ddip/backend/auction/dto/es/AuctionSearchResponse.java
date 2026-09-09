@@ -1,7 +1,7 @@
 package com.ddip.backend.auction.dto.es;
 
 import com.ddip.backend.auction.domain.Auction;
-import com.ddip.backend.auction.es.document.AuctionDocument;
+import com.ddip.backend.common.es.document.AuctionDocument;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

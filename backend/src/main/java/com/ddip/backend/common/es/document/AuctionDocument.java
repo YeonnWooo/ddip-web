@@ -1,4 +1,4 @@
-package com.ddip.backend.auction.es.document;
+package com.ddip.backend.common.es.document;
 
 import com.ddip.backend.auction.domain.Auction;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Setting(settingPath = "elasticsearch/setting.json")
-@Mapping(mappingPath = "elasticsearch/auction-mapping.json")
 @Document(indexName = "auction", createIndex = true, writeTypeHint = WriteTypeHint.FALSE)
+@Setting(settingPath = "elasticsearch/tokenizer-setting.json")
+@Mapping(mappingPath = "elasticsearch/auction-mapping.json")
 public class AuctionDocument {
 
     @Id
@@ -25,7 +25,7 @@ public class AuctionDocument {
     @Field(type = FieldType.Text)
     private String title;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Text)
     private String imageKey;
 
     @Field(type = FieldType.Text)

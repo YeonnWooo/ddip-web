@@ -1,6 +1,6 @@
-package com.ddip.backend.auction.es.repository;
+package com.ddip.backend.common.es.repository;
 
-import com.ddip.backend.auction.es.document.AuctionDocument;
+import com.ddip.backend.common.es.document.AuctionDocument;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Repository;
 

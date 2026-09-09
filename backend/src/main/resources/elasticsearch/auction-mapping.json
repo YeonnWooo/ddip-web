@@ -5,21 +5,20 @@
     },
     "title": {
       "type": "text",
-      "analyzer": "custom_nori_analyzer",
+      "analyzer": "custom-nori-analyzer",
       "fields": {
-        "autocomplete": {
+        "ngram": {
           "type": "text",
-          "analyzer": "custom_autocomplete_index",
-          "search_analyzer": "custom_autocomplete_search"
+          "analyzer": "custom-ngram-analyzer"
         }
       }
     },
     "description": {
       "type": "text",
-      "analyzer": "custom_nori_analyzer"
+      "analyzer": "custom-nori-analyzer"
     },
     "imageKey": {
-      "type": "keyword"
+      "type": "text"
     },
     "seller": {
       "type": "keyword"

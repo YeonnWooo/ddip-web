@@ -5,29 +5,16 @@
     },
     "title": {
       "type": "text",
-      "analyzer": "custom_nori_analyzer",
+      "analyzer": "custom-nori-analyzer",
       "fields": {
-        "autocomplete": {
+        "ngram": {
           "type": "text",
-          "analyzer": "custom_autocomplete_index",
-          "search_analyzer": "custom_autocomplete_search"
+          "analyzer": "custom-ngram-analyzer"
         }
       }
     },
-    "summary": {
-      "type": "text",
-      "analyzer": "custom_nori_analyzer"
-    },
-    "tags": {
-      "type": "text",
-      "analyzer": "tag_analyzer"
-    },
-    "categoryPath": {
-      "type": "keyword"
-    },
     "thumbnailUrl": {
-      "type": "keyword",
-      "index": false
+      "type": "text"
     },
     "targetAmount": {
       "type": "long"
@@ -35,19 +22,16 @@
     "currentAmount": {
       "type": "long"
     },
-    "likeCount": {
-      "type": "long"
-    },
     "status": {
       "type": "keyword"
     },
-    "createdDate": {
+    "startAt": {
       "type": "date",
-      "format": "strict_date_optional_time||epoch_millis"
+      "format":"yyyy-MM-dd||epoch_millis"
     },
     "endAt": {
       "type": "date",
-      "format": "yyyy-MM-dd||epoch_millis"
+      "format":"yyyy-MM-dd||epoch_millis"
     }
   }
 }

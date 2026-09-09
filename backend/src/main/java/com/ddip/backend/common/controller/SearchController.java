@@ -1,20 +1,19 @@
 package com.ddip.backend.common.controller;
 
-import com.ddip.backend.auction.dto.es.AuctionSearchCondition;
-import com.ddip.backend.auction.dto.es.AuctionSearchSliceResponse;
-import com.ddip.backend.auction.es.service.AuctionSearchService;
+import com.ddip.backend.auction.dto.es.AuctionSearchResponse;
 import com.ddip.backend.common.dto.es.SearchAutoCompleteResponse;
-import com.ddip.backend.common.es.AutoCompleteService;
-import com.ddip.backend.project.dto.es.ProjectSearchCondition;
+import com.ddip.backend.common.es.service.AuctionSearchService;
+import com.ddip.backend.common.es.service.SearchAddOnService;
 import com.ddip.backend.project.dto.es.ProjectSearchResponse;
-import com.ddip.backend.project.es.service.ProjectSearchService;
+import com.ddip.backend.common.es.service.ProjectSearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -24,36 +23,65 @@ public class SearchController {
 
     private final ProjectSearchService projectSearchService;
     private final AuctionSearchService auctionSearchService;
-    private final AutoCompleteService autoCompleteService;
+    private final SearchAddOnService findAutoCompleteSuggestionService;
 
+    /**
+     * 검색 자동완성
+     */
     @GetMapping("/suggest")
     public ResponseEntity<List<SearchAutoCompleteResponse>> autoComplete(@RequestParam("keyword") String keyword) {
-        return ResponseEntity.ok(autoCompleteService.searchAutoComplete(keyword));
+        return ResponseEntity.ok(findAutoCompleteSuggestionService.searchAutoComplete(keyword));
     }
 
+    /**
+     * 경매 검색
+     */
     @GetMapping("/auction")
-    public ResponseEntity<AuctionSearchSliceResponse> auctionSearch(@ModelAttribute AuctionSearchCondition condition) {
-        return ResponseEntity.ok(auctionSearchService.searchAuctionsByKeyword(condition));
+    public ResponseEntity<List<AuctionSearchResponse>> auctionSearch(@RequestParam("title") String title) {
+        List<AuctionSearchResponse> auctions = auctionSearchService.searchAuctionsByKeyword(title);
+
+        return ResponseEntity.ok(auctions);
     }
 
+    /**
+     * 경매 상세 검색
+     */
     @GetMapping("/auction/filter")
-    public ResponseEntity<AuctionSearchSliceResponse> auctionSearchFilter(@ModelAttribute AuctionSearchCondition condition) {
-        return ResponseEntity.ok(auctionSearchService.searchAuctionByFilter(condition));
+    public ResponseEntity<Page<AuctionSearchResponse>> auctionSearchFilter(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endAt,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+
+       Page<AuctionSearchResponse> auctions = auctionSearchService.searchAuctionByFilter(title, endAt, page, size);
+
+        return ResponseEntity.ok(auctions);
     }
 
+    /**
+     * 공동구매 검색
+     */
     @GetMapping("/project")
-    public ResponseEntity<Page<ProjectSearchResponse>> projectSearch(
-            @ModelAttribute ProjectSearchCondition condition,
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
-        return ResponseEntity.ok(projectSearchService.searchProjectByKeyword(condition, pageable));
+    public ResponseEntity<List<ProjectSearchResponse>> projectSearch(@RequestParam("title") String title) {
+        List<ProjectSearchResponse> project = projectSearchService.searchProjectByKeyword(title);
+
+        return ResponseEntity.ok(project);
     }
 
+    /**
+     * 공동구매 상세 검색
+     */
     @GetMapping("/project/filter")
-    public ResponseEntity<Page<ProjectSearchResponse>> projectSearchFilter(
-            @ModelAttribute ProjectSearchCondition condition,
-            @PageableDefault(size = 10) Pageable pageable
+    public ResponseEntity<Page<ProjectSearchResponse>> auctionSearchFilter(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate endAt,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        return ResponseEntity.ok(projectSearchService.searchProjectByFilter(condition, pageable));
+
+        Page<ProjectSearchResponse> projects = projectSearchService.searchProjectByFilter(title, endAt, page, size);
+
+        return ResponseEntity.ok(projects);
     }
 }

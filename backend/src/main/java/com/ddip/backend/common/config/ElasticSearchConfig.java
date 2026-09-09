@@ -13,10 +13,7 @@ import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfigurat
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 @Configuration
-@EnableElasticsearchRepositories(basePackages = {
-        "com.ddip.backend.project.es.repository",
-        "com.ddip.backend.auction.es.repository"
-})
+@EnableElasticsearchRepositories(basePackages = "com.ddip.backend.common.es.repository")
 public class ElasticSearchConfig extends ElasticsearchConfiguration {
 
     @Value("${spring.elasticsearch.uris}")

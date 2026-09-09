@@ -1,6 +1,6 @@
-package com.ddip.backend.project.es.repository;
+package com.ddip.backend.common.es.repository;
 
-import com.ddip.backend.project.es.document.ProjectDocument;
+import com.ddip.backend.common.es.document.ProjectDocument;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Repository;
 

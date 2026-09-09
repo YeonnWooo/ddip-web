@@ -10,7 +10,7 @@ import com.ddip.backend.project.repository.ProjectRepository;
 import com.ddip.backend.project.service.ProjectImageService;
 import com.ddip.backend.project.service.ProjectQueryService;
 import com.ddip.backend.project.service.ProjectService;
-import com.ddip.backend.project.es.repository.ProjectElasticsearchRepository;
+import com.ddip.backend.common.es.repository.ProjectElasticsearchRepository;
 import com.ddip.backend.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

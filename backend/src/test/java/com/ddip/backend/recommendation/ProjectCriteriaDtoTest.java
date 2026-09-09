@@ -47,7 +47,7 @@ class ProjectCriteriaDtoTest {
     @DisplayName("socialValue — ENVIRONMENT 카테고리 점수 1.0")
     void socialValue_environment() {
         Project p = baseProject().categoryPath("ENVIRONMENT").build();
-        ProjectCriteriaDto dto = ProjectCriteriaDto.of(p, 50L);
+        ProjectCriteriaDto dto = ProjectCriteriaDto.from(p, 50L);
         assertThat(dto.getSocialValue()).isCloseTo(1.0, within(DELTA));
     }
 
@@ -55,7 +55,7 @@ class ProjectCriteriaDtoTest {
     @DisplayName("socialValue — TECH 카테고리 점수 0.6")
     void socialValue_tech() {
         Project p = baseProject().categoryPath("TECH").build();
-        ProjectCriteriaDto dto = ProjectCriteriaDto.of(p, 50L);
+        ProjectCriteriaDto dto = ProjectCriteriaDto.from(p, 50L);
         assertThat(dto.getSocialValue()).isCloseTo(0.6, within(DELTA));
     }
 
@@ -63,7 +63,7 @@ class ProjectCriteriaDtoTest {
     @DisplayName("socialValue — categoryPath가 null이면 ETC 점수(0.2) 반환")
     void socialValue_nullCategory() {
         Project p = baseProject().categoryPath(null).build();
-        ProjectCriteriaDto dto = ProjectCriteriaDto.of(p, 50L);
+        ProjectCriteriaDto dto = ProjectCriteriaDto.from(p, 50L);
         assertThat(dto.getSocialValue()).isCloseTo(0.2, within(DELTA));
     }
 
@@ -71,7 +71,7 @@ class ProjectCriteriaDtoTest {
     @DisplayName("socialValue — 알 수 없는 카테고리값이면 ETC 점수(0.2) 반환")
     void socialValue_unknownCategory() {
         Project p = baseProject().categoryPath("UNKNOWN_CATEGORY").build();
-        ProjectCriteriaDto dto = ProjectCriteriaDto.of(p, 50L);
+        ProjectCriteriaDto dto = ProjectCriteriaDto.from(p, 50L);
         assertThat(dto.getSocialValue()).isCloseTo(0.2, within(DELTA));
     }
 
@@ -83,7 +83,7 @@ class ProjectCriteriaDtoTest {
     @DisplayName("reliability — likeCount 그대로 반영")
     void reliability_likeCount() {
         Project p = baseProject().likeCount(250L).build();
-        ProjectCriteriaDto dto = ProjectCriteriaDto.of(p, 0L);
+        ProjectCriteriaDto dto = ProjectCriteriaDto.from(p, 0L);
         assertThat(dto.getReliability()).isEqualTo(250.0);
     }
 
@@ -98,7 +98,7 @@ class ProjectCriteriaDtoTest {
                 .targetAmount(1_000_000L)
                 .currentAmount(500_000L)
                 .build();
-        ProjectCriteriaDto dto = ProjectCriteriaDto.of(p, 0L);
+        ProjectCriteriaDto dto = ProjectCriteriaDto.from(p, 0L);
         assertThat(dto.getFeasibility()).isCloseTo(0.5, within(DELTA));
         assertThat(dto.getAchievementRate()).isCloseTo(0.5, within(DELTA));
     }
@@ -107,7 +107,7 @@ class ProjectCriteriaDtoTest {
     @DisplayName("feasibility — targetAmount가 0이면 달성률 0 (ZeroDivision 방어)")
     void feasibility_zeroTarget() {
         Project p = baseProject().targetAmount(0L).currentAmount(0L).build();
-        ProjectCriteriaDto dto = ProjectCriteriaDto.of(p, 0L);
+        ProjectCriteriaDto dto = ProjectCriteriaDto.from(p, 0L);
         assertThat(dto.getFeasibility()).isZero();
     }
 
@@ -119,7 +119,7 @@ class ProjectCriteriaDtoTest {
     @DisplayName("economicValue — 리워드 없으면 1/1 = 1.0 (기본값)")
     void economicValue_noRewardTiers() {
         Project p = baseProject().build(); // rewardTiers 비어있음
-        ProjectCriteriaDto dto = ProjectCriteriaDto.of(p, 0L);
+        ProjectCriteriaDto dto = ProjectCriteriaDto.from(p, 0L);
         assertThat(dto.getEconomicValue()).isCloseTo(1.0, within(DELTA));
     }
 
@@ -142,7 +142,7 @@ class ProjectCriteriaDtoTest {
                 .rewardTiers(List.of(cheap, expensive))
                 .build();
 
-        ProjectCriteriaDto dto = ProjectCriteriaDto.of(pWithTiers, 0L);
+        ProjectCriteriaDto dto = ProjectCriteriaDto.from(pWithTiers, 0L);
         assertThat(dto.getEconomicValue()).isCloseTo(1.0 / 10_000, within(0.000001));
     }
 
@@ -154,7 +154,7 @@ class ProjectCriteriaDtoTest {
     @DisplayName("urgency — 마감 10일 남으면 1/10 = 0.1")
     void urgency_tenDaysLeft() {
         Project p = baseProject().endAt(LocalDate.now().plusDays(10)).build();
-        ProjectCriteriaDto dto = ProjectCriteriaDto.of(p, 0L);
+        ProjectCriteriaDto dto = ProjectCriteriaDto.from(p, 0L);
         assertThat(dto.getUrgency()).isCloseTo(1.0 / 10, within(DELTA));
     }
 
@@ -162,7 +162,7 @@ class ProjectCriteriaDtoTest {
     @DisplayName("urgency — 마감 1일 남으면 1/1 = 1.0 (최대 긴박)")
     void urgency_oneDayLeft() {
         Project p = baseProject().endAt(LocalDate.now().plusDays(1)).build();
-        ProjectCriteriaDto dto = ProjectCriteriaDto.of(p, 0L);
+        ProjectCriteriaDto dto = ProjectCriteriaDto.from(p, 0L);
         assertThat(dto.getUrgency()).isCloseTo(1.0, within(DELTA));
     }
 
@@ -170,9 +170,9 @@ class ProjectCriteriaDtoTest {
     @DisplayName("urgency — endAt이 null이어도 NPE 없이 fallback(1.0) 반환")
     void urgency_nullEndAt_noNPE() {
         Project p = baseProject().endAt(null).build();
-        assertThatCode(() -> ProjectCriteriaDto.of(p, 0L))
+        assertThatCode(() -> ProjectCriteriaDto.from(p, 0L))
                 .doesNotThrowAnyException();
-        ProjectCriteriaDto dto = ProjectCriteriaDto.of(p, 0L);
+        ProjectCriteriaDto dto = ProjectCriteriaDto.from(p, 0L);
         assertThat(dto.getUrgency()).isCloseTo(1.0, within(DELTA)); // daysLeft=1 fallback
     }
 
@@ -180,9 +180,9 @@ class ProjectCriteriaDtoTest {
     @DisplayName("urgency — 이미 마감된 프로젝트(과거 날짜)도 NPE 없이 fallback(1.0)")
     void urgency_pastEndAt_noNPE() {
         Project p = baseProject().endAt(LocalDate.now().minusDays(5)).build();
-        assertThatCode(() -> ProjectCriteriaDto.of(p, 0L))
+        assertThatCode(() -> ProjectCriteriaDto.from(p, 0L))
                 .doesNotThrowAnyException();
-        ProjectCriteriaDto dto = ProjectCriteriaDto.of(p, 0L);
+        ProjectCriteriaDto dto = ProjectCriteriaDto.from(p, 0L);
         assertThat(dto.getUrgency()).isCloseTo(1.0, within(DELTA)); // max(음수,1) → 1
     }
 
@@ -194,7 +194,7 @@ class ProjectCriteriaDtoTest {
     @DisplayName("backerCount / socialProof — 파라미터로 전달된 값 그대로 반영")
     void backerCount_reflected() {
         Project p = baseProject().build();
-        ProjectCriteriaDto dto = ProjectCriteriaDto.of(p, 300L);
+        ProjectCriteriaDto dto = ProjectCriteriaDto.from(p, 300L);
         assertThat(dto.getBackerCount()).isEqualTo(300.0);
         assertThat(dto.getSocialProof()).isEqualTo(300.0);
     }
@@ -214,7 +214,7 @@ class ProjectCriteriaDtoTest {
                 .endAt(LocalDate.now().plusDays(5))
                 .build();
 
-        ProjectCriteriaDto dto = ProjectCriteriaDto.of(p, 80L);
+        ProjectCriteriaDto dto = ProjectCriteriaDto.from(p, 80L);
         double[] arr = dto.toArray();
 
         assertThat(arr).hasSize(9);

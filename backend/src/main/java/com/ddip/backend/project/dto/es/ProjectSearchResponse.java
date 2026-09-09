@@ -1,6 +1,7 @@
 package com.ddip.backend.project.dto.es;
 
-import com.ddip.backend.project.es.document.ProjectDocument;
+import com.ddip.backend.common.es.document.ProjectDocument;
+import com.ddip.backend.project.domain.Project;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,6 +29,8 @@ public class ProjectSearchResponse {
 
     private String status;
 
+    private LocalDate startAt;
+
     private LocalDate endAt;
 
     public static ProjectSearchResponse from(ProjectDocument document) {
@@ -38,6 +41,7 @@ public class ProjectSearchResponse {
                 .targetAmount(document.getTargetAmount())
                 .currentAmount(document.getCurrentAmount())
                 .status(document.getStatus())
+                .startAt(document.getStartAt())
                 .endAt(document.getEndAt())
                 .build();
     }
