@@ -100,7 +100,7 @@ public class RecommendationService {
                 .toList();
 
         List<ProjectCriteriaDto> criteriaList = projectWithBackers.stream()
-                .map(pb -> ProjectCriteriaDto.of(pb.project(), pb.backerCount()))
+                .map(pb -> ProjectCriteriaDto.from(pb.project(), pb.backerCount()))
                 .toList();
 
         // 4) TOPSIS 계산

@@ -36,7 +36,7 @@ public class ProjectCriteriaDto {
         };
     }
 
-    public static ProjectCriteriaDto of(Project project, long backerCount) {
+    public static ProjectCriteriaDto from(Project project, long backerCount) {
         // endAt이 null이거나 이미 지난 경우 방어 처리 (urgency = 최솟값)
         long daysLeft = 1L;
         if (project.getEndAt() != null) {
