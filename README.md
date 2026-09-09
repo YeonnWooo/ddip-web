@@ -33,13 +33,12 @@
 | 구분 | 기술 |
 |---|---|
 | 프레임 워크 | Java, Spring Boot |
-| DB | MySQL, Spring Data JPA, QueryDSL 5.1.0 |
+| DB | MySQL, Spring Data JPA, QueryDSL |
 | 검색 | Elasticsearch |
 | 동시성 제어 | Redisson |
 | 실시간 통신 | WebSocket |
 | 인증 | Spring Security, OAuth2 Client, JWT |
-| 인프라 | AWS S3, AWS EC2 |
-| 외부 연동 | SOLAPI (SMS) |
+| 인프라 | AWS EC2 |
 | CI/CD | Jenkins, Docker, Docker Compose |
 
 <p align="right"><a href="#readme-top">맨 위로</a></p>
