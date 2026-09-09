@@ -6,7 +6,7 @@
 #   2. docker build -f Dockerfile.local -t ddip-backend:local .
 # =====================================================
 
-FROM amazoncorretto:21
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 # 사전 빌드된 JAR만 복사 (build/libs/*.jar)
