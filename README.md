@@ -81,6 +81,10 @@ sequenceDiagram
 | 인프라 | AWS EC2 |
 | CI/CD | Jenkins, Docker, Docker Compose |
 
+## ERD
+
+![ERD](docs/images/ddip-erd.png)
+
 ## CI/CD
 
 ![CI/CD Pipeline](docs/images/ci-cd-pipeline.jpeg)
